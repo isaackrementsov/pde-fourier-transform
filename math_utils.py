@@ -5,7 +5,7 @@ import numpy as np
 
 # Apply array of function values as function
 def aaf(y_range, x, x_range):
-    return y_range[closest_index(x_range - x)]
+    return y_range[closest_index(x, x_range)]
 
 # Find the index of the closest value in an array
 def closest_index(x, x_range):

@@ -6,19 +6,12 @@ import numpy as np
 
 from math_utils import closest_index
 
-fig = plt.figure()
-ax = plt.axes(xlim=(0,1), ylim=(-2,2))
-line, = ax.plot([], [], lw=2)
-
-# Initialize the animation
-def init():
-    line.set_data([], [])
-    return line,
-
 # Generate animation mp4
 def gen_animation(u, inp_range, x_vals, t_vals, dt):
     # Initialize line
+    fig = plt.figure()
     ax = plt.axes(xlim=x_vals, ylim=(-2,2))
+    line, = ax.plot([], [], lw=2)
 
     # Indicies for x range
     left = closest_index(x_vals[0], inp_range)
@@ -27,6 +20,11 @@ def gen_animation(u, inp_range, x_vals, t_vals, dt):
 
     # Get the time values to model the function over
     t_range = np.arange(t_vals[0], t_vals[1], dt)
+
+    # Initialize the animation
+    def init():
+        line.set_data([], [])
+        return line,
 
     # Generate each animation frame
     def animate(i):
@@ -41,5 +39,6 @@ def gen_animation(u, inp_range, x_vals, t_vals, dt):
     # Try saving a function mp4
     try:
         anim.save('wave.mp4')
-    except Exception:
+    except Exception as e:
+        print(e)
         print('Please install a working animation writer')

@@ -32,4 +32,4 @@ def u(t):
     return transform(gen_u_hat(t), inp_range, mode='inverse')
 
 # Animate the solution from x=-50 to 50 and t=0 to 10
-gen_animation(u, inp_range, (-50, 50), (0, 10), 1)
+gen_animation(u, inp_range, (-50, 50), (0, 5), 0.01)

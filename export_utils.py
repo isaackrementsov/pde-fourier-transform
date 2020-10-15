@@ -6,6 +6,9 @@ import numpy as np
 
 from math_utils import closest_index
 
+fig = plt.figure()
+ax = plt.axes(xlim=(0,1), ylim=(-2,2))
+
 # Initialize the animation
 def init():
     line.set_data([], [])
@@ -13,8 +16,7 @@ def init():
 
 # Generate animation mp4
 def gen_animation(u, inp_range, x_vals, t_vals, dt):
-    # Initialize figure
-    fig = plt.figure()
+    # Initialize line
     ax = plt.axes(xlim=x_vals, ylim=(-2,2))
     line, = ax.plot([], [], lw=2)
 
@@ -31,7 +33,7 @@ def gen_animation(u, inp_range, x_vals, t_vals, dt):
         y = u(i)[left:right]
 
         line.set_data(trunc_x, y)
-        return line
+        return line,
 
     # Generate MatPlotLib FuncAnimation
     anim = animation.FuncAnimation(fig, animate, init_func=init, frames=t_range, interval=1000*dt)

@@ -1,11 +1,8 @@
 # Animate a function as a time series
 
 import matplotlib.animation as animation
+import matplotlib.pyplot as plt
 import numpy as np
-
-fig = plt.figure()
-ax = plt.axes(xlim=(0,L), ylim=(-2,2))
-line, = ax.plot([], [], lw=2)
 
 # Initialize the animation
 def init():
@@ -14,6 +11,11 @@ def init():
 
 # Generate animation mp4
 def gen_animation(u, inp_range, x_vals, t_vals, dt):
+    # Initialize figure
+    fig = plt.figure()
+    ax = plt.axes(xlim=x_vals, ylim=(-2,2))
+    line, = ax.plot([], [], lw=2)
+
     # Indicies for x range
     left = closest_index(x_vals[0], inp_range)
     right = closest_index(x_vals[1], inp_range)

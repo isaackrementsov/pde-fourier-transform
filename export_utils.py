@@ -4,6 +4,8 @@ import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 
+from math_utils import closest_index
+
 # Initialize the animation
 def init():
     line.set_data([], [])

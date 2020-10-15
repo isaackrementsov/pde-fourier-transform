@@ -3,7 +3,7 @@
 import numpy as np
 
 from export_utils import gen_animation
-from math_utils import aaf, applyeach, transform, closest_index
+from math_utils import aaf, applyeach, transform
 
 # Range of values to perform Fourier transform over
 L = 400

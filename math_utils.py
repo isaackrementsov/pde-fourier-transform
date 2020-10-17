@@ -11,15 +11,6 @@ def aaf(y_range, x, x_range):
 def closest_index(x, x_range):
     return (np.abs(x_range - x)).argmin()
 
-# Forward or inverse finite Fourier Transform
-def transform(f, x_range, mode='forward'):
-    y_range = applyeach(f, x_range)
-
-    if mode == 'forward':
-        return fft(y_range)
-    elif mode == 'inverse':
-        return ifft(y_range)
-
 # Apply a function to each value in an array
 def applyeach(f, x_range, output='real'):
     f_range = []
@@ -35,3 +26,15 @@ def applyeach(f, x_range, output='real'):
         f_range.append(val)
 
     return f_range
+
+# Separate real and imaginary parts of a complex vector
+def separate(vec):
+    return np.concatenate((vec.real, vec.imag))
+
+# Join real and imaginary parts back into complex vector
+def join(vec, n):
+    return vec[:n] + (1j)*vec[n:]
+
+# Join real and imaginary parts of matrix columns
+def join_matrix(matrix, n):
+    return matrix[:,:n] + (1j)*matrix[:,n:]

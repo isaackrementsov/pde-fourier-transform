@@ -6,20 +6,18 @@ import numpy as np
 
 from math_utils import closest_index
 
-# Generate animation mp4
-def gen_animation(u, inp_range, x_vals, t_vals, dt):
+# Generate & save animation mp4
+def gen_animation(data, x_domain, t_domain, y_range, labels):
+    dt = np.abs(t_domain[0] - t_domain[1])
+
     # Initialize line
     fig = plt.figure()
-    ax = plt.axes(xlim=x_vals, ylim=(-2,2))
+    ax = plt.axes(xlim=(x_domain[0], x_domain[-1]), ylim=y_range)
     line, = ax.plot([], [], lw=2)
 
-    # Indicies for x range
-    left = closest_index(x_vals[0], inp_range)
-    right = closest_index(x_vals[1], inp_range)
-    trunc_x = inp_range[left:right]
-
-    # Get the time values to model the function over
-    t_range = np.arange(t_vals[0], t_vals[1], dt)
+    # Label axes
+    plt.xlabel(labels[0])
+    plt.ylabel(labels[1])
 
     # Initialize the animation
     def init():
@@ -28,13 +26,13 @@ def gen_animation(u, inp_range, x_vals, t_vals, dt):
 
     # Generate each animation frame
     def animate(i):
-        y = u(i)[left:right]
+        u = data[i]
 
-        line.set_data(trunc_x, y)
+        line.set_data(x_domain, u)
         return line
 
     # Generate MatPlotLib FuncAnimation
-    anim = animation.FuncAnimation(fig, animate, init_func=init, frames=t_range, interval=1000*dt)
+    anim = animation.FuncAnimation(fig, animate, init_func=init, frames=len(t_range), interval=1000*dt)
 
     # Try saving a function mp4
     try:
@@ -42,3 +40,19 @@ def gen_animation(u, inp_range, x_vals, t_vals, dt):
     except Exception as e:
         print(e)
         print('Please install a working animation writer')
+
+
+# Generate & save graph image
+def graph(data, x_domain, labels):
+    # Initialize plot
+    fig = plt.figure(figsize=(10,8))
+    ax = fig.add_subplot(111)
+
+    ax.plot(x_domain, data)
+
+    # Label axes
+    plt.xlabel(labels[0])
+    plt.ylabel(labels[1])
+
+    # Save figure
+    fig.savefig('wave.png')

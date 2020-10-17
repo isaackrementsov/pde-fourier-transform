@@ -32,7 +32,7 @@ def gen_animation(data, x_domain, t_domain, y_range, labels):
         return line
 
     # Generate MatPlotLib FuncAnimation
-    anim = animation.FuncAnimation(fig, animate, init_func=init, frames=len(t_range), interval=1000*dt)
+    anim = animation.FuncAnimation(fig, animate, init_func=init, frames=len(t_domain), interval=1000*dt)
 
     # Try saving a function mp4
     try:

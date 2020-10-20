@@ -27,7 +27,7 @@ n = int(L/dx)
 omega = 2*np.pi*nft.fftfreq(n, d=dx)
 
 # Initial wave distribution
-f = lambda x: 2*x*np.exp(-x**2)
+f = lambda x: np.exp(-x**2)
 f = applyeach(f, x_range)
 # Intial velocity distribution
 g = lambda x: 0
@@ -124,4 +124,4 @@ t2 = time.time()
 print('Took', str(np.round(t2 - t1, 3)), 'seconds')
 
 # Save mp4 file representing solution
-gen_animation(u, x_range, t, (-2,2), ('u', 'x'))
+gen_animation(u, x_range, t, (-2,2), ('Spatial position x', 'Wave height u'))

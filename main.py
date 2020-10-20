@@ -13,32 +13,30 @@ from math_utils import aaf, applyeach, separate, join, join_matrix
 v = 3
 
 # Domain
-L = 20
-dx = 0.1
-x_range = np.arange(-L/2, L/2, dx)
+L = (5, 5)
+d = (0.1, 0.1)
+x = np.meshgrid(np.arange(-L[0]/2, L[0]/2, d[0]), np.arange(-L[1]/2, L[1]/2, d[1]))
 
 dt = 0.02
 t = np.arange(0, 40, dt)
 
 # Number of discrete data points
-n = int(L/dx)
+n = (int(L[0]/d[0]), int(L[1]/d[1]))
 
 # Wavenumber vector
-omega = 2*np.pi*nft.fftfreq(n, d=dx)
+omega = np.meshgrid(2*np.pi*nft.fftfreq(n[0], d=d[0]), 2*np.pi*nft.fftfreq(n[1], d=d[1]))
 
 # Initial wave distribution
-f = lambda x: np.exp(-x**2)
-f = applyeach(f, x_range)
+f = lambda x, y: np.exp(-(x**2 + y**2))
 # Intial velocity distribution
-g = lambda x: 0
-g = applyeach(g, x_range)
+g = lambda x, y: -0.5*np.exp(-(x**2 + y**2))
 
 # Initial condition Fourier coefficients
-f_hat = nft.fft(f)
-g_hat = nft.fft(g)
+f_hat = nft.fft2(f(*x))
+g_hat = nft.fft2(g(*x))
 
 # Represent the transformed wave equation as a system of 1st order DEs
-def wave_eq(state, t, omega, v, m):
+def wave_eq(state, t, omega_1, omega_2, v, m):
     # Separate system state
     u_hat_ri = state[:2*m]
     q_ri = state[2*m:]
@@ -48,7 +46,8 @@ def wave_eq(state, t, omega, v, m):
 
     # q is a variable to avoid second derivatives in the equations
     u_hat_t = q
-    q_t = -v**2*np.power(omega, 2)*u_hat
+    # Since this is the 2d wave equation, the square magnitude of the frequency vector is used
+    q_t = -v**2*(np.power(omega_1, 2) + np.power(omega_2, 2))*u_hat
 
     # Separate into real/imaginary again
     u_hat_t_ri = separate(u_hat_t)
@@ -56,23 +55,30 @@ def wave_eq(state, t, omega, v, m):
 
     return np.concatenate((u_hat_t_ri, q_t_ri))
 
-# Self-contained ode solution
-def solve(f_hat_i, g_hat_i, omega_i):
-    # Separate real and imaginary parts
-    f_hat_ri = separate(f_hat_i)
-    g_hat_ri = separate(g_hat_i)
+# Self-contained ode solution with split parameters
+def solve(f_hat_s, g_hat_s, omega_s):
+    for j in range(len(omega_s[0])):
+        # Array of omega vectors
+        omega_row = (omega_s[0][j], omega_s[1][j])
+        # Intial condition rows
+        f_hat_row = f_hat_s[j]
+        g_hat_row = g_hat_s[j]
 
-    # Length of data piece
-    m = len(omega_i)
+        # Length of frequency range
+        m = len(omega_row[0])
 
-    # Solve u_hat ODE
-    u_hat_ri = odeint(wave_eq, np.concatenate((f_hat_ri, g_hat_ri)), t, args=(omega_i, v, m))[:,:2*m]
+        # Separate real and imaginary parts
+        f_hat_ri = separate(f_hat_row)
+        g_hat_ri = separate(g_hat_row)
+
+        # Solve u_hat ODE
+        u_hat_ri = odeint(wave_eq, np.concatenate((f_hat_ri, g_hat_ri)), t, args=(omega_row[0], omega_row[1], v, m))[:,:2*m]
 
     return join_matrix(u_hat_ri, m)
 
 # Get maximum usable number of threads
-threads = 12
-while n/threads < 1:
+threads = 1
+while n[0]/threads < 1:
     threads -= 1
 
 pool = mp.Pool(threads)
@@ -124,4 +130,4 @@ t2 = time.time()
 print('Took', str(np.round(t2 - t1, 3)), 'seconds')
 
 # Save mp4 file representing solution
-gen_animation(u, x_range, t, (-2,2), ('Spatial position x', 'Wave height u'))
+#gen_animation(u, x, t, (-2,2), ('Spatial position x', 'Wave height u'))

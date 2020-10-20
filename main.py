@@ -18,7 +18,7 @@ d = (0.1, 0.1)
 x = np.meshgrid(np.arange(-L[0]/2, L[0]/2, d[0]), np.arange(-L[1]/2, L[1]/2, d[1]))
 
 dt = 0.02
-t = np.arange(0, 40, dt)
+t = np.arange(0, 1, dt)
 
 # Number of discrete data points
 n = (int(L[0]/d[0]), int(L[1]/d[1]))
@@ -56,14 +56,16 @@ def wave_eq(state, t, omega_1, omega_2, v, m):
     return np.concatenate((u_hat_t_ri, q_t_ri))
 
 # Self-contained ode solution with split parameters
-def solve(f_hat_s, g_hat_s, omega_s):
-    for j in range(len(omega_s[0])):
+def solve(f_hat_s, g_hat_s, omega_s1, omega_s2):
+    u_hat_list = []
+    
+    for j in range(len(omega_s1)):
         # Array of omega vectors
-        omega_row = (omega_s[0][j], omega_s[1][j])
+        omega_row = (omega_s1[j], omega_s2[j])
         # Intial condition rows
         f_hat_row = f_hat_s[j]
         g_hat_row = g_hat_s[j]
-
+        
         # Length of frequency range
         m = len(omega_row[0])
 
@@ -73,11 +75,13 @@ def solve(f_hat_s, g_hat_s, omega_s):
 
         # Solve u_hat ODE
         u_hat_ri = odeint(wave_eq, np.concatenate((f_hat_ri, g_hat_ri)), t, args=(omega_row[0], omega_row[1], v, m))[:,:2*m]
+        
+        u_hat_list.append(join_matrix(u_hat_ri, m))
 
-    return join_matrix(u_hat_ri, m)
+    return np.stack(u_hat_list, axis=1)
 
 # Get maximum usable number of threads
-threads = 1
+threads = 12
 while n[0]/threads < 1:
     threads -= 1
 
@@ -85,9 +89,10 @@ pool = mp.Pool(threads)
 # Break down inputs
 f_hats = np.array_split(f_hat, threads)
 g_hats = np.array_split(g_hat, threads)
-omegas = np.array_split(omega, threads)
+omegas = (np.array_split(omega[0], threads), np.array_split(omega[1], threads))
+
 # Put input sets into their own arrays
-inputs = zip(f_hats, g_hats, omegas)
+inputs = zip(f_hats, g_hats, omegas[0], omegas[1])
 
 # Time solution generation
 t1 = time.time()
@@ -96,16 +101,16 @@ t1 = time.time()
 u_hats = pool.starmap(solve, inputs)
 # Join solutions together
 u_hat = np.hstack(u_hats)
-
+print(len(u_hat), len(u_hat[0]), len(u_hat[0][0]))
 # Inverse transform
 def inverse(iter_range):
     # Initialize empty solution array
-    u_i = np.zeros((len(iter_range), n))
+    u_i = np.zeros((len(iter_range), n[0], n[1]))
 
     for k in range(len(iter_range)):
         # Construct solution from new Fourier Coefficients
         i = k + iter_range[0]
-        u_i[k,:] = nft.ifft(u_hat[i,:])
+        u_i[k,:,:] = nft.ifft2(u_hat[i,:,:])
 
     return u_i
 

@@ -1,2 +1,4 @@
 # pde-fourier-transform
-Generate numeric PDE solutions using an inverse Fourier Transform
+Generates PDE solutions using the Fast Fourier Transform and a numeric ODE integrator.
+
+Switch branches to see solutions to different PDEs

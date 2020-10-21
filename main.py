@@ -13,12 +13,12 @@ from math_utils import aaf, applyeach, separate, join, join_matrix
 v = 3
 
 # Domain
-L = (5, 5)
+L = (10, 10)
 d = (0.1, 0.1)
 x = np.meshgrid(np.arange(-L[0]/2, L[0]/2, d[0]), np.arange(-L[1]/2, L[1]/2, d[1]))
 
-dt = 0.02
-t = np.arange(0, 1, dt)
+dt = 0.01
+t = np.arange(0, 10, dt)
 
 # Number of discrete data points
 n = (int(L[0]/d[0]), int(L[1]/d[1]))
@@ -27,9 +27,9 @@ n = (int(L[0]/d[0]), int(L[1]/d[1]))
 omega = np.meshgrid(2*np.pi*nft.fftfreq(n[0], d=d[0]), 2*np.pi*nft.fftfreq(n[1], d=d[1]))
 
 # Initial wave distribution
-f = lambda x, y: np.exp(-(x**2 + y**2))
+f = lambda x, y: 3*np.exp(-(x**2 + y**2))
 # Intial velocity distribution
-g = lambda x, y: -0.5*np.exp(-(x**2 + y**2))
+g = lambda x, y: 0*x*y
 
 # Initial condition Fourier coefficients
 f_hat = nft.fft2(f(*x))
@@ -135,4 +135,4 @@ t2 = time.time()
 print('Took', str(np.round(t2 - t1, 3)), 'seconds')
 
 # Save mp4 file representing solution
-#gen_animation(u, x, t, (-2,2), ('Spatial position x', 'Wave height u'))
+gen_animation(u, x, t, (-1,3), ('x', 'y', 'Wave height u'))

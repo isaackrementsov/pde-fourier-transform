@@ -7,32 +7,28 @@ import numpy as np
 from math_utils import closest_index
 
 # Generate & save animation mp4
-def gen_animation(data, x_domain, t_domain, y_range, labels):
-    dt = np.abs(t_domain[0] - t_domain[1])
+def gen_animation(data, x, t, z_range, labels):
+    dt = np.abs(t[0] - t[1])
 
+    plot_args = {'cmap': 'coolwarm', 'linewidth': 0}
     # Initialize line
-    fig = plt.figure()
-    ax = plt.axes(xlim=(x_domain[0], x_domain[-1]), ylim=y_range)
-    line, = ax.plot([], [], lw=2)
-
-    # Label axes
-    plt.xlabel(labels[0])
-    plt.ylabel(labels[1])
-
-    # Initialize the animation
-    def init():
-        line.set_data([], [])
-        return line,
-
+    fig = plt.figure(figsize=(10,8), dpi=200)
+    ax = fig.gca(projection='3d')
+    plot = ax.plot_surface(x[0], x[1], data[0], **plot_args)
+    ax.set_zlim(z_range[0], z_range[1])
+    
     # Generate each animation frame
     def animate(i):
+        nonlocal plot
+        
         u = data[i]
-
-        line.set_data(x_domain, u)
-        return line
+        
+        plot.remove()
+        plot = ax.plot_surface(x[0], x[1], u, **plot_args)
+        return plot,
 
     # Generate MatPlotLib FuncAnimation
-    anim = animation.FuncAnimation(fig, animate, init_func=init, frames=len(t_domain), interval=1000*dt)
+    anim = animation.FuncAnimation(fig, animate, frames=len(t), interval=1000*dt)
 
     # Try saving a function mp4
     try:

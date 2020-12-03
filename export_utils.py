@@ -16,13 +16,13 @@ def gen_animation(data, x, t, z_range, labels):
     ax = fig.gca(projection='3d')
     plot = ax.plot_surface(x[0], x[1], data[0], **plot_args)
     ax.set_zlim(z_range[0], z_range[1])
-    
+
     # Generate each animation frame
     def animate(i):
         nonlocal plot
-        
+
         u = data[i]
-        
+
         plot.remove()
         plot = ax.plot_surface(x[0], x[1], u, **plot_args)
         return plot,
@@ -39,7 +39,7 @@ def gen_animation(data, x, t, z_range, labels):
 
 
 # Generate & save graph image
-def graph(data, x_domain, labels):
+def graph(data, x_domain, labels, filename):
     # Initialize plot
     fig = plt.figure(figsize=(10,8))
     ax = fig.add_subplot(111)
@@ -51,4 +51,4 @@ def graph(data, x_domain, labels):
     plt.ylabel(labels[1])
 
     # Save figure
-    fig.savefig('wave.png')
+    fig.savefig(filename + '.png')

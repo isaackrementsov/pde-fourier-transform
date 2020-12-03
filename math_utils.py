@@ -1,6 +1,7 @@
 # Helpful math functions
 
 from scipy.fft import fft, ifft
+from scipy.integrate import simps
 import numpy as np
 
 # Apply array of function values as function
@@ -38,3 +39,17 @@ def join(vec, n):
 # Join real and imaginary parts of matrix columns
 def join_matrix(matrix, n):
     return matrix[:,:n] + (1j)*matrix[:,n:]
+
+def double_simps(integrand):
+    return simps([simps(slice) for slice in integrand])
+
+def d_dt(u, u_t0, dt):
+    u_t = np.array([u_t0])
+
+    for i in range(1, len(u)):
+        u_slice = u[i]
+        du = u[:,:,i] - u[:,:,i - 1]
+
+        np.stack([u_t, [du/dt]])
+
+    return u_t
